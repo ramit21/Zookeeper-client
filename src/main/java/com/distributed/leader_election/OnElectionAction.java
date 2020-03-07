@@ -16,13 +16,13 @@ public class OnElectionAction implements OnElectionCallback {
 	}
 
 	@Override
-	public void onElectedToBeLeader() {
+	public void onElectedToBeLeader() { //called for the leader
 		serviceRegistry.unregisterFromCluster();
 		serviceRegistry.registerForUpdates();
 	}
 
 	@Override
-	public void onWorker() {
+	public void onWorker() { //called for the worker
 		try {
 			String currentServerAddress = String.format("http://%s:%d",
 					InetAddress.getLocalHost().getCanonicalHostName(), port);

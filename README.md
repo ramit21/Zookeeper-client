@@ -34,10 +34,15 @@ The process() method of the watcher interface is what get's invoked when the cor
 
 See how every node is watching the **znode** of its previous node. This is done to avoid herd effect in the event of leader node failure (we don't want all nodes to query zookeeper together in the event of leader failure). Also see how cluster addresses registered with the leader change when you add/terminate an instance. Also try terminating the leader node, and see the next node become the new leader.
 
+**Future work in this POC:**
+
+As a final step, when a request comes in from the client, the leader splits the task into smaller chunks and gives it to the registered workers. Once data is processed and returned by the workers, the leader then merges all the responses and sends them back to the client. The way to implement is :
+
+In the OnElectionAction.java, see how the worker nodes register themselves to service registry while the leader unregisters itself. Now, the leader must register itself with another registry say leaderRegistry, which the client can then query to fetch the address of the leader node. It then sends the request to the leader node, which then using service registry distributes the task among the workers.
 
 ## Theory
 
-Q. What is Zookeeper.
+Q. What is Zookeeper?
 
 Ans. A high performance coordination service designed specifically for distributed systems.
 
