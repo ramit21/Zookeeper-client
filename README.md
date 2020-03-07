@@ -30,7 +30,34 @@ All instances in this POC register themselves with the zookeeper service registr
 
 As per the leader election algorithm that's implemented in this poc, the node with the lowest no. gets elected as the leader.
 
-The process() method of the watcher interface is what get's invoked when the corresponding zookeeper tree strucutre is modified. This can be used to carry out activities like re-elect leader, update registry with added/removed instance, auto healing (in case of znode deletion due to termination of corresponding instance) etc.
+The process() method of the watcher interface is what get's invoked when the corresponding zookeeper tree strucutre is modified. This can be used to carry out activities like re-elect leader, update registry with added/removed instance, auto healing (in case of znode deletion due to termination of corresponding instance) etc. Take note that Zookeeper nodes are of 2 types: persistent and ephemeral. The ephemral nodes get removed the moment the instance that registered it goes down. This ephemeral node deletion can then be caught in the wathcer interface implementation of the client application to take further actions.
 
-See how every node is wathcing the status of it's previous node. Also see how cluster addresses registered with the leader change when you add/terminate an instance. Also try terminating the leader node, and see the next node become the new leader.
+See how every node is watching the **znode** of its previous node. This is done to avoid herd effect in the event of leader node failure (we don't want all nodes to query zookeeper together in the event of leader failure). Also see how cluster addresses registered with the leader change when you add/terminate an instance. Also try terminating the leader node, and see the next node become the new leader.
+
+
+## Theory
+
+Q. What is Zookeeper.
+
+Ans. A high performance coordination service designed specifically for distributed systems.
+
+Many companies and projects use Zookeeper internally (eg. Kafka, Hadoop, HBase etc.)
+
+Zookeeper itself can run as a distributed system to provide high availability and reliability. 
+
+Zookeeper cluster should mainly consist of 3 nodes, so that even if one node goes down, the cluster is still up and running.
+
+Zookeeper arranges znodes in a tree like structure called "ensemble".
+
+Zookeeper manages the global order, which can be used to name the znodes sequentially as they are created. This sequential ordering can be put to use for leader election or even for locking on a resource.
+
+znodes can also be used to store small amount of data.
+
+Watches can be set at zookeeper clients, so that any change in zookeeper znodes get notified to the client to take appropriate action.
+
+Writes to zookeeper are liniar, ie all nodes are updated sequentially on every write update. Concurrent writing is not possible, hence zookeeper does not perform well in write heavy systems. Also, this liniar update is the reason the zookeeper nodes are kept at 3 and not more. All in all, Zookeeper is an eventually consistent system.
+
+
+
+
 
